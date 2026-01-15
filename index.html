@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>牛管理ログ</title>
+    <style>
+        body { background-color: #2c3e50; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
+        .container { background: #34495e; padding: 20px; border-radius: 15px; display: inline-block; width: 350px; }
+        input { width: 80%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; }
+        button { background: #e67e22; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        #log-area { margin-top: 30px; text-align: left; background: #ecf0f1; color: #333; padding: 10px; border-radius: 10px; }
+        .log-item { border-bottom: 1px solid #ccc; padding: 5px 0; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <h1>🐄 牛の成長記録 (保存版)</h1>
+    
+    <div class="container">
+        <input type="text" id="cowName" placeholder="牛の名前 (例: はなこ)">
+        <input type="number" id="weight" placeholder="今の体重 (kg)">
+        <button id="save-btn">記録して保存！</button>
+        
+        <div id="log-area">
+            <strong>過去の記録：</strong>
+            <div id="log-list"></div>
+        </div>
+        <br>
+        <button id="clear-btn" style="background:#c0392b; font-size:12px;">記録を全部消す</button>
+    </div>
+
+    <script>
+        const saveBtn = document.getElementById('save-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const list = document.getElementById('log-list');
+
+        // 1. ページを開いた時、保存されているデータを呼び出す
+        window.onload = () => {
+            const savedData = JSON.parse(localStorage.getItem('cowLogs')) || [];
+            savedData.forEach(item => addToList(item));
+        };
+
+        // 2. 保存ボタンを押した時の処理
+        saveBtn.addEventListener('click', () => {
+            const name = document.getElementById('cowName').value;
+            const weight = document.getElementById('weight').value;
+            if(!name || !weight) return alert("名前と体重を入れてくれ！");
+
+            const date = new Date().toLocaleDateString();
+            const logEntry = `${date} - ${name}: ${weight}kg`;
+
+            // データを配列に保存
+            const savedData = JSON.parse(localStorage.getItem('cowLogs')) || [];
+            savedData.push(logEntry);
+            localStorage.setItem('cowLogs', JSON.stringify(savedData));
+
+            addToList(logEntry);
+        });
+
+        // リストに表示する関数
+        function addToList(text) {
+            const div = document.createElement('div');
+            div.className = 'log-item';
+            div.innerText = text;
+            list.prepend(div); // 新しいのを上に
+        }
+
+        // 全部消す処理
+        clearBtn.addEventListener('click', () => {
+            if(confirm("本当に消すか？")) {
+                localStorage.clear();
+                location.reload();
+            }
+        });
+    </script>
+</body>
+</html>
