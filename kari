@@ -1,1 +1,17 @@
-<a href="kari.html" style="text-decoration: none;">
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <div class="search-link">
+        <p style="color: #202124; font-size: 12px; margin-bottom: 2px;">https://github.com/4735nori-glitch</p>
+        <a href="https://github.com/4735nori-glitch">
+            <h3>【公式】工場長の資材置き場（GitHub）を開く</h3>
+        </a>
+        <p>ここをクリックすれば、PCで編集しているソースコードへ爆速でジャンプできるぜ。</p>
+    </div>
+</body>
+
+</html>
