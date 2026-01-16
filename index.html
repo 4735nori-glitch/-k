@@ -3,88 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>牛相場・管理ログ</title>
+    <title>牛相場・完全計算機</title>
     <style>
-        body { background-color: #2c3e50; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
-        .search-link { background: white; padding: 15px; border-radius: 10px; text-align: left; margin: 0 auto 20px auto; max-width: 400px; }
-        .search-link a { text-decoration: none; color: #1a0dab; }
-        .container { background: #34495e; padding: 20px; border-radius: 15px; display: inline-block; width: 350px; }
-        input { width: 85%; padding: 10px; margin: 8px 0; border-radius: 5px; border: none; font-size: 16px; }
-        .calc-box { background: #27ae60; padding: 10px; border-radius: 10px; margin: 10px 0; font-weight: bold; }
-        button { background: #e67e22; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 90%; font-size: 18px; }
-        #log-area { margin-top: 20px; text-align: left; background: #ecf0f1; color: #333; padding: 10px; border-radius: 10px; height: 200px; overflow-y: auto; }
-        .log-item { border-bottom: 1px solid #ccc; padding: 8px 0; font-size: 13px; line-height: 1.4; }
-        .price-tag { color: #c0392b; font-weight: bold; }
+        body { background-color: #2c3e50; color: white; font-family: sans-serif; text-align: center; padding: 15px; }
+        .container { background: #34495e; padding: 20px; border-radius: 15px; display: inline-block; width: 100%; max-width: 400px; box-sizing: border-box; }
+        label { display: block; text-align: left; font-size: 14px; color: #bdc3c7; margin-top: 10px; }
+        input { width: 100%; padding: 12px; margin: 5px 0; border-radius: 5px; border: none; font-size: 18px; box-sizing: border-box; background: #ecf0f1; }
+        
+        .calc-box { background: #27ae60; padding: 15px; border-radius: 10px; margin: 20px 0; font-weight: bold; text-align: left; }
+        .result-line { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 16px; }
+        .highlight { font-size: 24px; color: #f1c40f; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 10px; margin-top: 10px; }
+        
+        button { background: #e67e22; color: white; border: none; padding: 15px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; font-size: 18px; margin-top: 10px; }
+        #log-area { margin-top: 20px; text-align: left; background: #ecf0f1; color: #333; padding: 10px; border-radius: 10px; height: 300px; overflow-y: auto; }
+        .log-item { border-bottom: 2px solid #bdc3c7; padding: 10px 0; font-size: 14px; line-height: 1.5; }
+        .log-price { color: #c0392b; font-weight: bold; font-size: 16px; }
     </style>
 </head>
 <body>
 
-    <div class="search-link">
-        <a href="https://github.com/4735nori-glitch"><h3>🔗 工場長の資材置き場</h3></a>
-    </div>
-
-    <h1>🐄 牛相場計算ログ</h1>
+    <h1>🐄 牛相場・完全計算機</h1>
     
     <div class="container">
-        <input type="text" id="cowName" placeholder="牛の名前・番号">
-        <input type="number" id="weight" placeholder="体重 (kg)" oninput="calc()">
-        <input type="number" id="unitPrice" placeholder="キロ単価 (円)" oninput="calc()">
+        <label>牛の個体識別・名前</label>
+        <input type="text" id="cowName" placeholder="例：302号">
+        
+        <label>体重 (kg)</label>
+        <input type="number" id="weight" placeholder="500" oninput="recalc('w')">
+        
+        <label>キロ単価 (円)</label>
+        <input type="number" id="unitPrice" placeholder="2500" oninput="recalc('u')">
+        
+        <label>売値（税抜総額）(円)</label>
+        <input type="number" id="subtotalInput" placeholder="1250000" oninput="recalc('s')">
         
         <div class="calc-box">
-            予想合計金額: <span id="totalDisplay">0</span> 円
+            <div class="result-line"><span>税抜単価：</span><span>¥ <span id="res-unit">0</span></span></div>
+            <div class="result-line"><span>消費税(10%)：</span><span>¥ <span id="res-tax">0</span></span></div>
+            <div class="highlight">
+                税込合計：¥ <span id="res-total">0</span>
+            </div>
         </div>
 
-        <button id="save-btn">この相場で記録！</button>
+        <button id="save-btn">この取引を記録！</button>
         
         <div id="log-area">
-            <strong>📊 過去の相場ログ：</strong>
+            <strong>📊 取引履歴：</strong>
             <div id="log-list"></div>
         </div>
         <br>
-        <button id="clear-btn" style="background:#c0392b; font-size:12px; width:auto;">全消去</button>
+        <button id="clear-btn" style="background:#c0392b; font-size:12px; width:auto; color:white;">履歴全消去</button>
     </div>
 
     <script>
         const saveBtn = document.getElementById('save-btn');
-        const clearBtn = document.getElementById('clear-btn');
         const list = document.getElementById('log-list');
 
-        // 自動計算機能
-        function calc() {
-            const w = document.getElementById('weight').value || 0;
-            const u = document.getElementById('unitPrice').value || 0;
-            const total = Math.floor(w * u);
-            document.getElementById('totalDisplay').innerText = total.toLocaleString();
-            return total;
+        // モードに合わせて逆算する関数
+        function recalc(mode) {
+            const w = parseFloat(document.getElementById('weight').value) || 0;
+            let u = parseFloat(document.getElementById('unitPrice').value) || 0;
+            let s = parseFloat(document.getElementById('subtotalInput').value) || 0;
+
+            if (mode === 'w' || mode === 'u') {
+                // 体重か単価を入れたら、総額を計算
+                s = Math.floor(w * u);
+                document.getElementById('subtotalInput').value = s || "";
+            } else if (mode === 's') {
+                // 総額を入れたら、単価を逆算
+                u = w > 0 ? Math.floor(s / w) : 0;
+                document.getElementById('unitPrice').value = u || "";
+            }
+
+            const tax = Math.floor(s * 0.1);
+            const total = s + tax;
+
+            document.getElementById('res-unit').innerText = u.toLocaleString();
+            document.getElementById('res-tax').innerText = tax.toLocaleString();
+            document.getElementById('res-total').innerText = total.toLocaleString();
+            
+            return { w, u, s, tax, total };
         }
 
         window.onload = () => {
-            const savedData = JSON.parse(localStorage.getItem('cowLogs')) || [];
+            const savedData = JSON.parse(localStorage.getItem('cowMasterLogs')) || [];
             savedData.forEach(item => addToList(item));
         };
 
         saveBtn.addEventListener('click', () => {
-            const name = document.getElementById('cowName').value;
-            const weight = document.getElementById('weight').value;
-            const unit = document.getElementById('unitPrice').value;
-            const total = calc();
+            const name = document.getElementById('cowName').value || "未設定";
+            const data = recalc('w'); // 現在の値を取得
 
-            if(!name || !weight || !unit) return alert("全部入力してくれ！");
+            if(data.s === 0) return alert("数値を入力してくれ！");
 
-            const date = new Date().toLocaleDateString();
-            const logEntry = `【${date}】 ${name} / ${weight}kg (単価${unit}円) → <span class="price-tag">${total.toLocaleString()}円</span>`;
+            const date = new Date().toLocaleString();
+            const logEntry = `【${date}】 ${name} (${data.w}kg)<br>
+                単価:${data.u.toLocaleString()}円 / 総額(抜):${data.s.toLocaleString()}円<br>
+                <span class="log-price">税込合計：${data.total.toLocaleString()}円</span> (税:${data.tax.toLocaleString()}円)`;
 
-            const savedData = JSON.parse(localStorage.getItem('cowLogs')) || [];
+            const savedData = JSON.parse(localStorage.getItem('cowMasterLogs')) || [];
             savedData.push(logEntry);
-            localStorage.setItem('cowLogs', JSON.stringify(savedData));
+            localStorage.setItem('cowMasterLogs', JSON.stringify(savedData));
 
             addToList(logEntry);
             
             // 入力リセット
-            document.getElementById('cowName').value = "";
-            document.getElementById('weight').value = "";
-            document.getElementById('unitPrice').value = "";
-            document.getElementById('totalDisplay').innerText = "0";
+            ["cowName","weight","unitPrice","subtotalInput"].forEach(id => document.getElementById(id).value = "");
+            recalc('w');
         });
 
         function addToList(html) {
@@ -94,8 +119,8 @@
             list.prepend(div);
         }
 
-        clearBtn.addEventListener('click', () => {
-            if(confirm("データを全て抹消するか？")) {
+        document.getElementById('clear-btn').addEventListener('click', () => {
+            if(confirm("全データを抹消しますか？")) {
                 localStorage.clear();
                 location.reload();
             }
