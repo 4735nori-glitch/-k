@@ -2,16 +2,45 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Document</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工場長の中継基地</title>
+    <style>
+        body { background-color: #f1f3f4; font-family: arial, sans-serif; padding: 20px; }
+        .search-link { 
+            background: white; 
+            padding: 15px; 
+            border-radius: 8px; 
+            max-width: 600px; 
+            margin: 10px auto; 
+            box-shadow: 0 1px 6px rgba(32,33,36,0.28);
+        }
+        .search-link a { text-decoration: none; }
+        .search-link h3 { color: #1a0dab; margin: 0; font-size: 20px; font-weight: normal; }
+        .search-link h3:hover { text-decoration: underline; }
+        .search-link .url { color: #202124; font-size: 14px; margin-bottom: 4px; }
+        .search-link .desc { color: #4d5156; font-size: 14px; margin-top: 5px; line-height: 1.5; }
+        h1 { text-align: center; color: #202124; font-size: 24px; margin-bottom: 30px; }
+    </style>
 </head>
 <body>
-    <div class="search-link">
-        <p style="color: #202124; font-size: 12px; margin-bottom: 2px;">https://github.com/4735nori-glitch</p>
-        <a href="https://github.com/4735nori-glitch">
-            <h3>【公式】工場長の資材置き場（GitHub）を開く</h3>
-        </a>
-        <p>ここをクリックすれば、PCで編集しているソースコードへ爆速でジャンプできるぜ。</p>
-    </div>
-</body>
 
+    <h1>🚀 工場長の中継基地（リンク集）</h1>
+
+    <div class="search-link">
+        <p class="url">https://github.com/4735nori-glitch</p>
+        <a href="https://github.com/4735nori-glitch">
+            <h3>【公式】工場長の資材置き場（GitHub）</h3>
+        </a>
+        <p class="desc">PCで編集しているソースコードや、新しいModの設計図はここからチェックできるぜ。</p>
+    </div>
+
+    <div class="search-link">
+        <p class="url">https://4735nori-glitch.github.io/-k/</p>
+        <a href="./index.html">
+            <h3>🐄 牛の成長記録ページへ戻る</h3>
+        </a>
+        <p class="desc">スマホからサッと牛の体重を入力したい時はこっちだ。</p>
+    </div>
+
+    </body>
 </html>
