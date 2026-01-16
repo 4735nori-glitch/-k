@@ -2,20 +2,33 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>牛管理ログ</title>
+    <title>牛管理ログ ＆ 共有ハブ</title>
     <style>
         body { background-color: #2c3e50; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
+        /* Google風リンクのスタイル */
+        .search-link { background: white; padding: 15px; border-radius: 10px; text-align: left; margin: 0 auto 30px auto; max-width: 400px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .search-link a { text-decoration: none; }
+        .search-link h3 { color: #1a0dab; margin: 0; font-size: 18px; font-weight: normal; }
+        .search-link h3:hover { text-decoration: underline; }
+        .search-link p { color: #4d5156; font-size: 13px; margin: 5px 0 0 0; }
+        
         .container { background: #34495e; padding: 20px; border-radius: 15px; display: inline-block; width: 350px; }
         input { width: 80%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; }
         button { background: #e67e22; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        #log-area { margin-top: 30px; text-align: left; background: #ecf0f1; color: #333; padding: 10px; border-radius: 10px; }
+        #log-area { margin-top: 30px; text-align: left; background: #ecf0f1; color: #333; padding: 10px; border-radius: 10px; height: 150px; overflow-y: auto; }
         .log-item { border-bottom: 1px solid #ccc; padding: 5px 0; font-size: 14px; }
     </style>
 </head>
 <body>
 
+    <div class="search-link">
+        <p style="color: #202124; font-size: 12px; margin-bottom: 2px;">https://github.com/4735nori-glitch</p>
+        <a href="https://github.com/4735nori-glitch">
+            <h3>【公式】工場長の資材置き場（GitHub）を開く</h3>
+        </a>
+        <p>ここをクリックすれば、PCで編集しているソースコードへ爆速でジャンプできるぜ。</p>
+    </div>
 
-    
     <h1>🐄 牛の成長記録 (保存版)</h1>
     
     <div class="container">
@@ -36,13 +49,11 @@
         const clearBtn = document.getElementById('clear-btn');
         const list = document.getElementById('log-list');
 
-        // 1. ページを開いた時、保存されているデータを呼び出す
         window.onload = () => {
             const savedData = JSON.parse(localStorage.getItem('cowLogs')) || [];
             savedData.forEach(item => addToList(item));
         };
 
-        // 2. 保存ボタンを押した時の処理
         saveBtn.addEventListener('click', () => {
             const name = document.getElementById('cowName').value;
             const weight = document.getElementById('weight').value;
@@ -51,23 +62,24 @@
             const date = new Date().toLocaleDateString();
             const logEntry = `${date} - ${name}: ${weight}kg`;
 
-            // データを配列に保存
             const savedData = JSON.parse(localStorage.getItem('cowLogs')) || [];
             savedData.push(logEntry);
             localStorage.setItem('cowLogs', JSON.stringify(savedData));
 
             addToList(logEntry);
+            
+            // 入力欄を空にする（使いやすく！）
+            document.getElementById('cowName').value = "";
+            document.getElementById('weight').value = "";
         });
 
-        // リストに表示する関数
         function addToList(text) {
             const div = document.createElement('div');
             div.className = 'log-item';
             div.innerText = text;
-            list.prepend(div); // 新しいのを上に
+            list.prepend(div);
         }
 
-        // 全部消す処理
         clearBtn.addEventListener('click', () => {
             if(confirm("本当に消すか？")) {
                 localStorage.clear();
